@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -7,72 +6,40 @@ namespace SimpleFlowChart
 {
     public class ShapeConnection
     {
-        public Shape Shape1 { get; }
-        public Shape Shape2 { get; }
-        public Polyline Line { get; private set; }
+        public Node StartNode { get; }
+        public Node EndNode { get; }
+        public Line Line { get; private set; }
         private readonly Canvas Canvas;
 
-
-        public ShapeConnection(Shape shape1, Shape shape2)
+        public ShapeConnection(Node startNode, Node endNode)
         {
-            Shape1 = shape1;
-            Shape2 = shape2;
-            Canvas = ServiceLocator.GetService<Canvas>();
+            StartNode = startNode;
+            EndNode = endNode;
+            Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
 
             CreateLine();
+            StartNode.Connections.Add(this);
+            EndNode.Connections.Add(this);
         }
 
         private void CreateLine()
         {
-            // Create a polyline to connect the shapes with axis-aligned lines
-            Line = new Polyline
+            Line = new Line
             {
                 Stroke = Brushes.Black,
-                StrokeThickness = 2,
-                Points = []
+                StrokeThickness = 2
             };
 
-            UpdateLinePosition(Canvas.GetLeft(Shape1.UserControl), Canvas.GetTop(Shape1.UserControl));
-
-            // Add the polyline to the canvas
+            UpdatePosition();
             Canvas.Children.Add(Line);
         }
 
-        private void UpdateLinePosition(double x, double y)
+        public void UpdatePosition()
         {
-            double x1 = x + Shape1.UserControl.Width / 2;
-            double y1 = y + Shape1.UserControl.Height;
-            double x2 = Canvas.GetLeft(Shape2.UserControl) + Shape2.UserControl.Width / 2;
-            double y2 = Canvas.GetTop(Shape2.UserControl);
-
-            Line.Points.Clear();
-            Line.Points.Add(new Point(x1, y1));
-
-            if (y1 != y2)
-            {
-                Line.Points.Add(new Point(x1, (y1 + y2) / 2));
-                Line.Points.Add(new Point(x2, (y1 + y2) / 2));
-            }
-            else
-            {
-                Line.Points.Add(new Point(x2, y1));
-            }
-
-            Line.Points.Add(new Point(x2, y2));
-        }
-
-        public bool UpdateFrom()
-        {
-            double x = Canvas.GetLeft(Shape1.UserControl);
-            double y = Canvas.GetTop(Shape1.UserControl);
-            UpdateLinePosition(x, y);
-            return true;
-        }
-
-        public bool UpdateTo(double x, double y)
-        {
-            UpdateLinePosition(x, y);
-            return true;
+            Line.X1 = StartNode.Position.X;
+            Line.Y1 = StartNode.Position.Y;
+            Line.X2 = EndNode.Position.X;
+            Line.Y2 = EndNode.Position.Y;
         }
     }
 }

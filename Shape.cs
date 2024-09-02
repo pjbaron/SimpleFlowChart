@@ -1,55 +1,56 @@
-﻿using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
-
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SimpleFlowChart
 {
     public class Shape
     {
-        public UserControl UserControl;
-        public ShapeConnection? ConnectionIn;
-        public List<ShapeConnection> ConnectionsOut;
+        public enum NodePoints {
+            Top = 0,
+            Right = 1,
+            Bottom = 2,
+            Left = 3
+        }
+
+        public UserControl UserControl { get; }
+        public ObservableCollection<Node> Nodes { get; } = new ObservableCollection<Node>();
         private bool IsDragging;
         private Point ClickPosition;
         private Canvas Canvas;
 
-
         public Shape(UserControl uc, double x, double y)
         {
             UserControl = uc;
-            SetPosition(x, y);
-
-            Canvas = ServiceLocator.GetService<Canvas>();
+            Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
             Canvas.Children.Add(UserControl);
 
-            ConnectionIn = null;
-            ConnectionsOut = [];
-            IsDragging = false;
+            SetPosition(x, y);
+            InitializeNodes();
 
             UserControl.MouseLeftButtonDown += MouseLeftButtonDown;
             UserControl.MouseMove += MouseMove;
             UserControl.MouseLeftButtonUp += MouseLeftButtonUp;
         }
 
-        public void AddConnectionOut(Shape shapeConnected)
+        private void InitializeNodes()
         {
-            // connection exits this Shape
-            ShapeConnection connection = new ShapeConnection(this, shapeConnected);
-            ConnectionsOut.Add(connection);
-            // connection enters the connected Shape
-            shapeConnected.AddConnectionIn(connection);
-        }
-
-        public void AddConnectionIn(ShapeConnection connectionIn)
-        {
-            ConnectionIn = connectionIn;
+            // Initialize nodes based on the shape's geometry
+            // This method should be overridden in derived classes
         }
 
         public void SetPosition(double x, double y)
         {
-            Canvas.SetLeft(UserControl, x - UserControl.Width / 2);
-            Canvas.SetTop(UserControl, y + UserControl.Height / 2);
+            Canvas.SetLeft(UserControl, x - UserControl.ActualWidth / 2);
+            Canvas.SetTop(UserControl, y - UserControl.ActualHeight / 2);
+            UpdateNodePositions();
+        }
+
+        private void UpdateNodePositions()
+        {
+            // Update positions of all nodes based on the new shape position
+            // This method should be implemented based on the shape's geometry
         }
 
         private void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -64,31 +65,16 @@ namespace SimpleFlowChart
             if (!IsDragging) return;
 
             Point currentPosition = e.GetPosition(Canvas);
-
             double offsetX = currentPosition.X - ClickPosition.X;
             double offsetY = currentPosition.Y - ClickPosition.Y;
             ClickPosition = currentPosition;
 
-            double initialLeft = Canvas.GetLeft(UserControl);
-            double initialTop = Canvas.GetTop(UserControl);
-            double newLeft = initialLeft + offsetX;
-            double newTop = initialTop + offsetY;
+            double newLeft = Canvas.GetLeft(UserControl) + offsetX;
+            double newTop = Canvas.GetTop(UserControl) + offsetY;
 
-            bool moveAllowed = true;
-            if (ConnectionIn != null)
-            {
-                ConnectionIn.UpdateFrom();
-            }
-            foreach (var connection in ConnectionsOut)
-            {
-                moveAllowed |= connection.UpdateTo(newLeft, newTop);
-            }
-
-            if (moveAllowed)
-            {
-                Canvas.SetLeft(UserControl, newLeft);
-                Canvas.SetTop(UserControl, newTop);
-            }
+            Canvas.SetLeft(UserControl, newLeft);
+            Canvas.SetTop(UserControl, newTop);
+            UpdateNodePositions();
         }
 
         private void MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -101,22 +87,9 @@ namespace SimpleFlowChart
             double currentTop = Canvas.GetTop(draggedShape);
 
             Point shapeCenter = new Point(currentLeft + draggedShape.Width / 2, currentTop + draggedShape.Height / 2);
+            Point nearestGridPoint = GetNearestGridPoint(shapeCenter, MainWindow.Constants.SnapThreshold);
 
-            Point nearestGridPoint = GetNearestGridPoint(shapeCenter, Constants.SnapThreshold);
-
-            double newLeft = nearestGridPoint.X - draggedShape.Width / 2;
-            double newTop = nearestGridPoint.Y - draggedShape.Height / 2;
-            Canvas.SetLeft(draggedShape, newLeft);
-            Canvas.SetTop(draggedShape, newTop);
-
-            if (ConnectionIn != null)
-            {
-                ConnectionIn.UpdateFrom();
-            }
-            foreach (var connection in ConnectionsOut)
-            {
-                connection.UpdateTo(newLeft, newTop);
-            }
+            SetPosition(nearestGridPoint.X, nearestGridPoint.Y);
         }
 
         private Point GetNearestGridPoint(Point position, double gridSize)
@@ -127,3 +100,4 @@ namespace SimpleFlowChart
         }
     }
 }
+

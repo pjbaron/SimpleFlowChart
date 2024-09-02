@@ -4,6 +4,6 @@
              Width="100" Height="100">
     <Grid>
         <Polygon Points="50,0 100,50 50,100 0,50" Stroke="Black" StrokeThickness="2" Fill="LightGray"/>
-        <TextBlock x:Name="TextBlock" Text="Diamond" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock x:Name="TextBlock" Text="Diamond" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 </UserControl>

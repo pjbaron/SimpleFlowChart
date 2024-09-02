@@ -1,0 +1,9 @@
+﻿<UserControl x:Class="SimpleFlowChart.NodeShape"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="10" Height="10">
+    <StackPanel Orientation="Horizontal">
+        <Rectangle Width="10" Height="10" Fill="Black"/>
+        <TextBlock x:Name="TextBlock" Text="" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

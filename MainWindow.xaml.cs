@@ -1,38 +1,33 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-
 
 namespace SimpleFlowChart
 {
-    public static class Constants
+    public partial class MainWindow : Window
     {
-        public const double SnapThreshold = 10.0;
-    }
-
-
-    public static class ServiceLocator
-    {
-        private static readonly Dictionary<Type, object> Services = new Dictionary<Type, object>();
-
-        public static void Register<T>(T service)
+        public static class Constants
         {
-            if (service != null)
+            public const double SnapThreshold = 10.0;
+        }
+
+
+        public static class ServiceLocator
+        {
+            private static readonly Dictionary<Type, object> Services = new Dictionary<Type, object>();
+
+            public static void Register<T>(T service)
             {
-                Services[typeof(T)] = service;
+                if (service != null)
+                {
+                    Services[typeof(T)] = service;
+                }
+            }
+
+            public static T GetService<T>()
+            {
+                return (T)Services[typeof(T)];
             }
         }
 
-        public static T GetService<T>()
-        {
-            return (T)Services[typeof(T)];
-        }
-    }
-
-
-    public partial class MainWindow : Window
-    {
         public MainWindow()
         {
             InitializeComponent();
@@ -43,14 +38,13 @@ namespace SimpleFlowChart
 
         private void InitializeFlowchart()
         {
-            // Add rectangles and diamonds to the canvas
-            var r1 = new Shape(new RectangleShape("Rect 1"), 100, 50);
-            var d1 = new Shape(new DiamondShape("Diamond 1"), 200, 150);
-            var r2 = new Shape(new RectangleShape("Rectangle 2"), 350, 300);
+            var r1 = new RectangleShape("Rectangle 1", 100, 50);
+            var d1 = new DiamondShape("Diamond 1", 200, 150);
+            var r2 = new RectangleShape("Rectangle 2", 350, 300);
 
-            // Connect them together
-            r1.AddConnectionOut(d1);
-            d1.AddConnectionOut(r2);
+            // Connect them using nodes
+            var c1 = new ShapeConnection(r1.Shape.Nodes[(int)Shape.NodePoints.Bottom], d1.Shape.Nodes[(int)Shape.NodePoints.Top]);
+            var c2 = new ShapeConnection(d1.Shape.Nodes[(int)Shape.NodePoints.Right], r2.Shape.Nodes[(int)Shape.NodePoints.Left]);
         }
     }
 }

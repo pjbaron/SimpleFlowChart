@@ -1,35 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SimpleFlowChart
 {
-    /// <summary>
-    /// Interaction logic for RectangleShape.xaml
-    /// </summary>
     public partial class RectangleShape : UserControl
     {
-        public RectangleShape(string text)
+        public Shape Shape { get; private set; }
+
+        public RectangleShape(string text, double x, double y)
         {
             InitializeComponent();
-            ShapeText = text;
+            TextBlock.Text = text;
+            Shape = new Shape(this, x, y);
+            InitializeNodes();
         }
 
-        public string ShapeText
+        private void InitializeNodes()
         {
-            get { return TextBlock.Text; }
-            set { TextBlock.Text = value; }
+            // Create nodes at the midpoints of each side
+            Shape.Nodes.Add(new Node(Shape, new Point(ActualWidth / 2, 0))); // Top
+            Shape.Nodes.Add(new Node(Shape, new Point(ActualWidth, ActualHeight / 2))); // Right
+            Shape.Nodes.Add(new Node(Shape, new Point(ActualWidth / 2, ActualHeight))); // Bottom
+            Shape.Nodes.Add(new Node(Shape, new Point(0, ActualHeight / 2))); // Left
+        }
+
+        public void UpdateNodePositions()
+        {
+            double left = Canvas.GetLeft(this);
+            double top = Canvas.GetTop(this);
+
+            Shape.Nodes[0].UpdatePosition(new Point(left + ActualWidth / 2, top)); // Top
+            Shape.Nodes[1].UpdatePosition(new Point(left + ActualWidth, top + ActualHeight / 2)); // Right
+            Shape.Nodes[2].UpdatePosition(new Point(left + ActualWidth / 2, top + ActualHeight)); // Bottom
+            Shape.Nodes[3].UpdatePosition(new Point(left, top + ActualHeight / 2)); // Left
         }
     }
 }
