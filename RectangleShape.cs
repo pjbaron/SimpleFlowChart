@@ -16,11 +16,11 @@ namespace SimpleFlowChart
 
         public RectangleShape(double cx, double cy, double width = 100, double height = 60, string text = "") : base(cx, cy, width, height)
         {
-            InitializeRectangle();
+            InitializeShape();
             InitializeNodes();
         }
 
-        private void InitializeRectangle()
+        private void InitializeShape()
         {
             RectanglePolygon = new Polygon
             {
@@ -53,8 +53,6 @@ namespace SimpleFlowChart
         {
             double left = Canvas.GetLeft(this);
             double top = Canvas.GetTop(this);
-
-            Debug.WriteLine($"Rect: UpdateNodePositions {left},{top}. Width: {Width}, Height: {Height}");
 
             Nodes[0].UpdatePosition(new Point(left + Width / 2, top));
             Nodes[1].UpdatePosition(new Point(left + Width, top + Height / 2));

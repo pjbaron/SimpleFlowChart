@@ -14,11 +14,11 @@ namespace SimpleFlowChart
 
         public DiamondShape(double x, double y, double width = 100, double height = 60, string text = "") : base(x, y, width, height)
         {
-            InitializeDiamond(x, y);
+            InitializeShape();
             InitializeNodes();
         }
 
-        private void InitializeDiamond(double x, double y)
+        private void InitializeShape()
         {
             DiamondPolygon = new Polygon
             {

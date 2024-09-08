@@ -7,11 +7,11 @@ namespace SimpleFlowChart
     {
         FlowchartParser parser;
         string[] Markup = {
-            // more complex test
+            // Complex test
             "RECT R1 (250, 50) (100, 50) \"Start\"",
             "DIAMOND D1 (250, 150) (100, 100) \"Decision 1\"",
-            "NODE N1 (100, 150) \"Intermediate Node\"",
-            "NODE N2 (100, 225) \"Intermediate Node\"",
+            "NODE N1 (100, 150) \"Intermediate Node\"",     // left of d1
+            "NODE N2 (100, 225) \"Intermediate Node\"",     // halfway between n1 and top of r2
             "RECT R2 (100, 300) (100, 50) \"Rectangle 1\"",
             "RECT R3 (400, 300) (100, 50) \"Rectangle 2\"",
             "DIAMOND D2 (100, 450) (100, 100) \"Decision 2\"",
@@ -20,15 +20,17 @@ namespace SimpleFlowChart
             "RECT R5 (400, 600) (100, 50) \"Rectangle 4\"",
             "CONNECT R1.BOTTOM -> D1.TOP",
             "CONNECT D1.LEFT -> N1",
-            "CONNECT N1 -> R2.TOP",
+            "CONNECT N1 -> N2",
+            "CONNECT N2 -> R2.TOP",
             "CONNECT D1.RIGHT -> R3.TOP",
             "CONNECT R2.BOTTOM -> D2.TOP",
             "CONNECT R3.BOTTOM -> D3.TOP",
             "CONNECT D2.BOTTOM -> R4.TOP",
             "CONNECT D3.BOTTOM -> R5.TOP",
-            "CONNECT D2.LEFT -> N2",
+            "CONNECT D2.LEFT -> N2",        // loop back up to N2 node
             "CONNECT D3.LEFT -> R4.TOP"
         };
+
             // original simple test
             //"RECT R1 (200, 50) (100, 50) \"Start\"",
             //"DIAMOND D1 (200, 150) (100, 50) \"Decision\"",
@@ -40,7 +42,7 @@ namespace SimpleFlowChart
 
         public static class Constants
         {
-            public const double SnapThreshold = 10.0;
+            public const double SnapThreshold = 16.0;
         }
 
 
@@ -76,16 +78,6 @@ namespace SimpleFlowChart
         private void InitializeFlowchart(string[] markup)
         {
             parser.ParseMarkup(markup);
-
-            //var r1 = new RectangleShape(200.0, 50.0);
-            //var d1 = new DiamondShape(200, 150);
-            //var r2 = new RectangleShape(350, 150);
-            //var r3 = new RectangleShape(200, 300);
-
-            //// Connect the nodes with lines
-            //var c1 = new ShapeConnection(r1.Nodes[(int)Shape.NodePoints.Bottom], d1.Nodes[(int)Shape.NodePoints.Top]);
-            //var c2 = new ShapeConnection(d1.Nodes[(int)Shape.NodePoints.Right], r2.Nodes[(int)Shape.NodePoints.Left]);
-            //var c3 = new ShapeConnection(d1.Nodes[(int)Shape.NodePoints.Bottom], r3.Nodes[(int)Shape.NodePoints.Top]);
         }
     }
 }

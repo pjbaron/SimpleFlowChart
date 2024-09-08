@@ -20,7 +20,7 @@ namespace SimpleFlowChart
         public List<Node> Nodes { get; } = new List<Node>();
         private bool IsDragging;
         private Point DragAnchorPoint;
-        private Canvas Canvas;
+        protected Canvas Canvas;
 
 
         public Shape(double x, double y, double width, double height)
@@ -31,7 +31,8 @@ namespace SimpleFlowChart
             Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
             Canvas.Children.Add(this);
 
-            SetPosition(x, y);
+            Point gp = GetNearestGridPoint(new Point(x, y), MainWindow.Constants.SnapThreshold);
+            SetPosition(gp.X, gp.Y);
 
             MouseLeftButtonDown += DragStart;
             MouseMove += Dragging;
