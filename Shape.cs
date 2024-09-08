@@ -1,11 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿#pragma warning disable CS8618
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
+
+
 namespace SimpleFlowChart
 {
-    public class Shape
+    public class Shape : UserControl
     {
         public enum NodePoints {
             Top = 0,
@@ -14,70 +17,46 @@ namespace SimpleFlowChart
             Left = 3
         }
 
-        public UserControl UserControl { get; }
-        public ObservableCollection<Node> Nodes { get; } = new ObservableCollection<Node>();
+        public List<Node> Nodes { get; } = new List<Node>();
         private bool IsDragging;
-        private Point ClickPosition;
+        private Point DragAnchorPoint;
         private Canvas Canvas;
 
-        public Shape(UserControl uc, double x, double y)
+
+        public Shape(double x, double y, double width, double height)
         {
-            UserControl = uc;
+            Width = width;
+            Height = height;
+
             Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
-            Canvas.Children.Add(UserControl);
+            Canvas.Children.Add(this);
 
             SetPosition(x, y);
-            InitializeNodes();
 
-            UserControl.MouseLeftButtonDown += MouseLeftButtonDown;
-            UserControl.MouseMove += MouseMove;
-            UserControl.MouseLeftButtonUp += MouseLeftButtonUp;
+            MouseLeftButtonDown += DragStart;
+            MouseMove += Dragging;
+            MouseLeftButtonUp += DragDrop;
         }
 
-        private void InitializeNodes()
-        {
-            // Initialize nodes based on the shape's geometry
-            // This method should be overridden in derived classes
-        }
-
-        public void SetPosition(double x, double y)
-        {
-            Canvas.SetLeft(UserControl, x - UserControl.ActualWidth / 2);
-            Canvas.SetTop(UserControl, y - UserControl.ActualHeight / 2);
-            UpdateNodePositions();
-        }
-
-        private void UpdateNodePositions()
-        {
-            // Update positions of all nodes based on the new shape position
-            // This method should be implemented based on the shape's geometry
-        }
-
-        private void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void DragStart(object sender, MouseButtonEventArgs e)
         {
             IsDragging = true;
-            ClickPosition = e.GetPosition(Canvas);
+            DragAnchorPoint = e.GetPosition(Canvas);
             ((UserControl)sender).CaptureMouse();
         }
 
-        private void MouseMove(object sender, MouseEventArgs e)
+        private void Dragging(object sender, MouseEventArgs e)
         {
             if (!IsDragging) return;
 
-            Point currentPosition = e.GetPosition(Canvas);
-            double offsetX = currentPosition.X - ClickPosition.X;
-            double offsetY = currentPosition.Y - ClickPosition.Y;
-            ClickPosition = currentPosition;
+            Point dragPoint = e.GetPosition(Canvas);
+            Point offset = (Point)(dragPoint - DragAnchorPoint);
+            DragAnchorPoint = dragPoint;
 
-            double newLeft = Canvas.GetLeft(UserControl) + offsetX;
-            double newTop = Canvas.GetTop(UserControl) + offsetY;
-
-            Canvas.SetLeft(UserControl, newLeft);
-            Canvas.SetTop(UserControl, newTop);
-            UpdateNodePositions();
+            SetPosition(Canvas.GetLeft(this) + offset.X + Width / 2, Canvas.GetTop(this) + offset.Y + Height / 2);
         }
 
-        private void MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void DragDrop(object sender, MouseButtonEventArgs e)
         {
             IsDragging = false;
             ((UserControl)sender).ReleaseMouseCapture();
@@ -90,6 +69,21 @@ namespace SimpleFlowChart
             Point nearestGridPoint = GetNearestGridPoint(shapeCenter, MainWindow.Constants.SnapThreshold);
 
             SetPosition(nearestGridPoint.X, nearestGridPoint.Y);
+        }
+
+        public void SetPosition(double x, double y)
+        {
+            Canvas.SetLeft(this, x - Width / 2);
+            Canvas.SetTop(this, y - Height / 2);
+            if (Nodes.Count > 0)
+            {
+                UpdateNodePositions();
+            }
+        }
+
+        public virtual void UpdateNodePositions()
+        {
+
         }
 
         private Point GetNearestGridPoint(Point position, double gridSize)

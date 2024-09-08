@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿#pragma warning disable CS8618
+
+using System.Diagnostics;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -30,12 +33,14 @@ namespace SimpleFlowChart
                 StrokeThickness = 2
             };
 
-            UpdatePosition();
+            UpdateLinePosition();
             Canvas.Children.Add(Line);
         }
 
-        public void UpdatePosition()
+        // when a Node moves, this will update the connecting line accordingly
+        public void UpdateLinePosition()
         {
+            Debug.WriteLine($"Conn: UpdatePosition {StartNode} to {EndNode}");
             Line.X1 = StartNode.Position.X;
             Line.Y1 = StartNode.Position.Y;
             Line.X2 = EndNode.Position.X;
