@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace SimpleFlowChart
 {
@@ -13,7 +12,7 @@ namespace SimpleFlowChart
             "NODE N1 (100, 150) \"Intermediate Node\"",     // left of d1
             "NODE N2 (100, 225) \"Intermediate Node\"",     // halfway between n1 and top of r2
             "RECT R2 (100, 300) (100, 50) \"Rectangle 1\"",
-            "RECT R3 (400, 300) (100, 50) \"Rectangle 2\"",
+            "RECT R3 (400, 300) (100, 50) \"Rectangle 2 has a lot of text! It's more than a little and it should overflow, crop, or shrink...\"",
             "DIAMOND D2 (100, 450) (100, 100) \"Decision 2\"",
             "DIAMOND D3 (400, 450) (100, 100) \"Decision 3\"",
             "RECT R4 (100, 600) (100, 50) \"Rectangle 3\"",

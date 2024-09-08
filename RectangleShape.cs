@@ -1,12 +1,9 @@
 ﻿#pragma warning disable CS8618
 
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-
-
 
 namespace SimpleFlowChart
 {
@@ -14,7 +11,7 @@ namespace SimpleFlowChart
     {
         private Polygon RectanglePolygon;
 
-        public RectangleShape(double cx, double cy, double width = 100, double height = 60, string text = "") : base(cx, cy, width, height)
+        public RectangleShape(double cx, double cy, double width = 100, double height = 60, string text = "") : base(cx, cy, width, height, text)
         {
             InitializeShape();
             InitializeNodes();

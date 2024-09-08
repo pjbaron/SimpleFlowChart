@@ -5,14 +5,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-
 namespace SimpleFlowChart
 {
     public class DiamondShape : Shape
     {
         private Polygon DiamondPolygon;
 
-        public DiamondShape(double x, double y, double width = 100, double height = 60, string text = "") : base(x, y, width, height)
+        public DiamondShape(double x, double y, double width = 100, double height = 60, string text = "") : base(x, y, width, height, text)
         {
             InitializeShape();
             InitializeNodes();
@@ -57,4 +56,5 @@ namespace SimpleFlowChart
             Nodes[3].UpdatePosition(new Point(left, top + Height / 2)); // Left
         }
     }
+
 }

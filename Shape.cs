@@ -1,10 +1,11 @@
 ﻿#pragma warning disable CS8618
 
+using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-
-
+using System.Windows.Media;
 
 namespace SimpleFlowChart
 {
@@ -21,9 +22,9 @@ namespace SimpleFlowChart
         private bool IsDragging;
         private Point DragAnchorPoint;
         protected Canvas Canvas;
+        protected TextBlock TextBlock;
 
-
-        public Shape(double x, double y, double width, double height)
+        public Shape(double x, double y, double width, double height, string text = "")
         {
             Width = width;
             Height = height;
@@ -31,12 +32,38 @@ namespace SimpleFlowChart
             Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
             Canvas.Children.Add(this);
 
+            InitializeText(text);
+
             Point gp = GetNearestGridPoint(new Point(x, y), MainWindow.Constants.SnapThreshold);
             SetPosition(gp.X, gp.Y);
 
             MouseLeftButtonDown += DragStart;
             MouseMove += Dragging;
             MouseLeftButtonUp += DragDrop;
+        }
+
+        protected virtual void InitializeText(string text)
+        {
+            TextBlock = new TextBlock
+            {
+                Text = text,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                Width = Width,
+                Height = Height,
+                FontSize = 10,
+                IsHitTestVisible = false
+            };
+
+            Canvas.Children.Add(TextBlock);
+            Canvas.SetLeft(TextBlock, Canvas.GetLeft(this));
+            if (this is DiamondShape)
+                Canvas.SetTop(TextBlock, Canvas.GetTop(this) + Height / 2 - 10);
+            else
+                Canvas.SetTop(TextBlock, Canvas.GetTop(this));
+
+            // add tooltips with the full text in case it is cropped
+            ToolTip = text;
         }
 
         private void DragStart(object sender, MouseButtonEventArgs e)
@@ -80,11 +107,21 @@ namespace SimpleFlowChart
             {
                 UpdateNodePositions();
             }
+            UpdateTextPosition();
         }
 
         public virtual void UpdateNodePositions()
         {
 
+        }
+
+        public void UpdateTextPosition()
+        {
+            Canvas.SetLeft(TextBlock, Canvas.GetLeft(this));
+            if (this is DiamondShape)
+                Canvas.SetTop(TextBlock, Canvas.GetTop(this) + Height / 2 - 10);
+            else
+                Canvas.SetTop(TextBlock, Canvas.GetTop(this));
         }
 
         private Point GetNearestGridPoint(Point position, double gridSize)
