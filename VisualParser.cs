@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace SimpleFlowChart
 {
-    class FlowchartParser
+    class VisualParser
     {
         private Dictionary<string, Shape> shapes = new Dictionary<string, Shape>();
         private static Regex shapeRegex = new Regex(@"(\w+)\s+(\w+)\s+\(([^)]+)\)\s+(\(([^)]+)\)\s*)?(\"".*\"")?");
@@ -12,7 +12,7 @@ namespace SimpleFlowChart
         {
             foreach (string line in lines)
             {
-                if (line.StartsWith("RECT") || line.StartsWith("DIAMOND") || line.StartsWith("NODE"))
+                if (line.StartsWith("START") || line.StartsWith("RECT") || line.StartsWith("DIAMOND") || line.StartsWith("NODE"))
                 {
                     CreateShape(line);
                 }
@@ -41,6 +41,15 @@ namespace SimpleFlowChart
             Shape? shape = null;
             switch (shapeType)
             {
+                case "START":
+                {
+                    var sizeParts = size.Split(',');
+                    double width = double.Parse(sizeParts[0]);
+                    double height = double.Parse(sizeParts[1]);
+                    shape = new RectangleShape(x, y, width, height, "START");
+                }
+                break;
+
                 case "RECT":
                 {
                     var sizeParts = size.Split(',');

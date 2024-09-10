@@ -5,11 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleFlowChart"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800">
-    <Grid>
-        <Canvas>
-            <Canvas x:Name="flowchartCanvas" Height="434" Width="800"/>
-        </Canvas>
-
-    </Grid>
+        Height="800" Width="800">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New"/>
+                <Separator />
+                <MenuItem Header="_Open"/>
+                <MenuItem Header="_Save"/>
+                <MenuItem Header="Save _As"/>
+                <Separator />
+                <MenuItem Header="E_xit" />
+            </MenuItem>
+            <MenuItem Header="_Run" />
+        </Menu>
+        <Canvas x:Name="flowchartCanvas"/>
+    </DockPanel>
 </Window>

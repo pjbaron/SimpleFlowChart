@@ -4,13 +4,13 @@ namespace SimpleFlowChart
 {
     public partial class MainWindow : Window
     {
-        FlowchartParser parser;
-        string[] Markup = {
-            // Complex test
-            "RECT R1 (250, 50) (100, 50) \"Start\"",
+        string[] Markup =
+        {
+            "START R1 (250, 50) (100, 50) \"Start\"",
             "DIAMOND D1 (250, 150) (100, 100) \"Decision 1\"",
             "NODE N1 (100, 150) \"Intermediate Node\"",     // left of d1
             "NODE N2 (100, 225) \"Intermediate Node\"",     // halfway between n1 and top of r2
+            "NODE N3 (50, 225) \"Intermediate Node\"",     // bend in loop back connection
             "RECT R2 (100, 300) (100, 50) \"Rectangle 1\"",
             "RECT R3 (400, 300) (100, 50) \"Rectangle 2 has a lot of text! It's more than a little and it should overflow, crop, or shrink...\"",
             "DIAMOND D2 (100, 450) (100, 100) \"Decision 2\"",
@@ -26,18 +26,15 @@ namespace SimpleFlowChart
             "CONNECT R3.BOTTOM -> D3.TOP",
             "CONNECT D2.BOTTOM -> R4.TOP",
             "CONNECT D3.BOTTOM -> R5.TOP",
-            "CONNECT D2.LEFT -> N2",        // loop back up to N2 node
+            "CONNECT D2.LEFT -> N3",        // loop back up to N2 node via N3 bend
+            "CONNECT N3 -> N2",
             "CONNECT D3.LEFT -> R4.TOP"
         };
 
-            // original simple test
-            //"RECT R1 (200, 50) (100, 50) \"Start\"",
-            //"DIAMOND D1 (200, 150) (100, 50) \"Decision\"",
-            //"RECT R2 (350, 150) (100, 50) \"Right Node\"",
-            //"RECT R3 (200, 300) (100, 50) \"Bottom Node\"",
-            //"CONNECT R1.BOTTOM -> D1.TOP",
-            //"CONNECT D1.RIGHT -> R2.LEFT",
-            //"CONNECT D1.BOTTOM -> R3.TOP"
+        MarkupToProgramFlow Program;
+        VisualParser Parser;
+
+
 
         public static class Constants
         {
@@ -63,20 +60,19 @@ namespace SimpleFlowChart
             }
         }
 
+
         public MainWindow()
         {
             InitializeComponent();
-
-            parser = new FlowchartParser();
             ServiceLocator.Register(flowchartCanvas);
-            ServiceLocator.Register(parser);
 
-            InitializeFlowchart(Markup);
-        }
+            Parser = new VisualParser();
+            ServiceLocator.Register(Parser);
+            Parser.ParseMarkup(Markup);
 
-        private void InitializeFlowchart(string[] markup)
-        {
-            parser.ParseMarkup(markup);
+            Program = new MarkupToProgramFlow();
+            ServiceLocator.Register(Program);
+            Program.InitializeProgram(Markup);
         }
     }
 }
