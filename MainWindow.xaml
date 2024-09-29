@@ -17,7 +17,7 @@
                 <Separator />
                 <MenuItem Header="E_xit" />
             </MenuItem>
-            <MenuItem Header="_Run" />
+            <MenuItem Header="_Run" Click="RunMenuItem_Click" />
         </Menu>
         <Canvas x:Name="flowchartCanvas"/>
     </DockPanel>

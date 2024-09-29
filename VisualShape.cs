@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace SimpleFlowChart
 {
-    public class Shape : UserControl
+    public class VisualShape : UserControl
     {
         public enum NodePoints {
             Top = 0,
@@ -18,16 +18,19 @@ namespace SimpleFlowChart
             Left = 3
         }
 
-        public List<Node> Nodes { get; } = new List<Node>();
+        public List<NodeShape> Nodes { get; } = new List<NodeShape>();
         private bool IsDragging;
         private Point DragAnchorPoint;
         protected Canvas Canvas;
         protected TextBlock TextBlock;
+        public int LineNumber;
 
-        public Shape(double x, double y, double width, double height, string text = "")
+        public VisualShape(double x, double y, double width, double height, string text = "")
         {
             Width = width;
             Height = height;
+
+            LineNumber = -1;
 
             Canvas = MainWindow.ServiceLocator.GetService<Canvas>();
             Canvas.Children.Add(this);
@@ -130,6 +133,11 @@ namespace SimpleFlowChart
             double y = Math.Round(position.Y / gridSize) * gridSize;
             return new Point(x, y);
         }
+
+        public virtual void Highlight(bool highlight)
+        {
+        }
+
     }
 }
 

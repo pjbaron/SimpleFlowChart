@@ -8,16 +8,16 @@ using System.Windows.Shapes;
 
 namespace SimpleFlowChart
 {
-    public class Node : Shape
+    public class NodeShape : VisualShape
     {
         private System.Windows.Shapes.Ellipse Circle;
-        private Shape? ParentShape;
+        private VisualShape? ParentShape;
         public Point Position { get; set; }
         public List<ShapeConnection> Connections { get; } = new List<ShapeConnection>();
 
-        public Node(Shape? parent, Point position, string label = "") : base(position.X, position.Y, 10, 10)
+        public NodeShape(VisualShape? parent, Point position, string label = "") : base(position.X, position.Y, 10, 10)
         {
-            Debug.WriteLine($"New Node: at ({position.X}, {position.Y})");
+            Debug.WriteLine($"New NodeShape for {parent.Name}: at ({position.X}, {position.Y})");
             ParentShape = parent;
             Position = position;
             if (ParentShape == null)

@@ -9,12 +9,12 @@ namespace SimpleFlowChart
 {
     public class ShapeConnection
     {
-        public Node StartNode { get; }
-        public Node EndNode { get; }
+        public NodeShape StartNode { get; }
+        public NodeShape EndNode { get; }
         public Line Line { get; private set; }
         private readonly Canvas Canvas;
 
-        public ShapeConnection(Node startNode, Node endNode)
+        public ShapeConnection(NodeShape startNode, NodeShape endNode)
         {
             StartNode = startNode;
             EndNode = endNode;
@@ -40,7 +40,7 @@ namespace SimpleFlowChart
         // when a Node moves, this will update the connecting line accordingly
         public void UpdateLinePosition()
         {
-            Debug.WriteLine($"Conn: UpdatePosition {StartNode} to {EndNode}");
+            //Debug.WriteLine($"Conn: UpdatePosition {StartNode} to {EndNode}");
             Line.X1 = StartNode.Position.X;
             Line.Y1 = StartNode.Position.Y;
             Line.X2 = EndNode.Position.X;

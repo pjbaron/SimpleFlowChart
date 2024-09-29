@@ -1,22 +1,35 @@
 ﻿using System.Windows;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace SimpleFlowChart
 {
     class VisualParser
     {
-        private Dictionary<string, Shape> shapes = new Dictionary<string, Shape>();
+        private Dictionary<string, VisualShape> shapes = new Dictionary<string, VisualShape>();
         private static Regex shapeRegex = new Regex(@"(\w+)\s+(\w+)\s+\(([^)]+)\)\s+(\(([^)]+)\)\s*)?(\"".*\"")?");
+        private int LineNumber;
+        private string[]? Markup = null;
+
 
         public void ParseMarkup(string[] lines)
         {
-            foreach (string line in lines)
+            Markup = lines;
+
+            // 2-passes, always collect shapes before connections
+            for (LineNumber = 0; LineNumber < Markup.Length; LineNumber++)
             {
-                if (line.StartsWith("START") || line.StartsWith("RECT") || line.StartsWith("DIAMOND") || line.StartsWith("NODE"))
+                string line = Markup[LineNumber];
+                if (line.StartsWith("RECT") || line.StartsWith("DIAMOND") || line.StartsWith("NODE"))
                 {
                     CreateShape(line);
                 }
-                else if (line.StartsWith("CONNECT"))
+            }
+                
+            for (LineNumber = 0; LineNumber < Markup.Length; LineNumber++)
+            {
+                string line = Markup[LineNumber];
+                if (line.StartsWith("CONNECT"))
                 {
                     CreateConnection(line);
                 }
@@ -38,24 +51,16 @@ namespace SimpleFlowChart
             double x = double.Parse(posParts[0]);
             double y = double.Parse(posParts[1]);
 
-            Shape? shape = null;
+            VisualShape? shape = null;
             switch (shapeType)
             {
-                case "START":
-                {
-                    var sizeParts = size.Split(',');
-                    double width = double.Parse(sizeParts[0]);
-                    double height = double.Parse(sizeParts[1]);
-                    shape = new RectangleShape(x, y, width, height, "START");
-                }
-                break;
-
                 case "RECT":
                 {
                     var sizeParts = size.Split(',');
                     double width = double.Parse(sizeParts[0]);
                     double height = double.Parse(sizeParts[1]);
                     shape = new RectangleShape(x, y, width, height, label);
+                    shape.LineNumber = LineNumber;
                 }
                 break;
 
@@ -65,12 +70,14 @@ namespace SimpleFlowChart
                     double width = double.Parse(sizeParts[0]);
                     double height = double.Parse(sizeParts[1]);
                     shape = new DiamondShape(x, y, width, height, label);
+                    shape.LineNumber = LineNumber;
                 }
                 break;
 
                 case "NODE":
                 {
-                    shape = new Node(null, new Point(x, y), label);
+                    shape = new NodeShape(null, new Point(x, y), label);
+                    shape.LineNumber = LineNumber;
                 }
                 break;
             }
@@ -93,30 +100,44 @@ namespace SimpleFlowChart
             string targetShapeId = targetParts[0];
             string targetAnchor = targetParts.Length > 1 ? targetParts[1] : "CENTER";
 
-            if (shapes.TryGetValue(sourceShapeId, out Shape? valueSrc) && shapes.TryGetValue(targetShapeId, out Shape? valueTgt))
+            if (shapes.TryGetValue(sourceShapeId, out VisualShape? valueSrc) && shapes.TryGetValue(targetShapeId, out VisualShape? valueTgt))
             {
-                Shape sourceShape = valueSrc;
-                Shape targetShape = valueTgt;
+                Debug.WriteLine($"CreateConnection (Visual) {sourceShapeId} to {targetShapeId}");
+                VisualShape sourceShape = valueSrc;
+                VisualShape targetShape = valueTgt;
                 // adds itself to the Nodes
                 _ = new ShapeConnection(GetNode(sourceShape, sourceAnchor), GetNode(targetShape, targetAnchor));
             }
+            else
+            {
+                Debug.WriteLine($"Cannot CreateConnection (Visual) {sourceShapeId} to {targetShapeId}");
+            }
         }
 
-        private Node GetNode(Shape shape, string anchor)
+        private NodeShape GetNode(VisualShape shape, string anchor)
         {
-            if (shape is Node node)
+            if (shape is NodeShape node)
             {
                 return node;
             }
 
             return anchor.ToUpper() switch
             {
-                "TOP" => shape.Nodes[(int)Shape.NodePoints.Top],
-                "BOTTOM" => shape.Nodes[(int)Shape.NodePoints.Bottom],
-                "LEFT" => shape.Nodes[(int)Shape.NodePoints.Left],
-                "RIGHT" => shape.Nodes[(int)Shape.NodePoints.Right],
+                "TOP" => shape.Nodes[(int)VisualShape.NodePoints.Top],
+                "BOTTOM" => shape.Nodes[(int)VisualShape.NodePoints.Bottom],
+                "LEFT" => shape.Nodes[(int)VisualShape.NodePoints.Left],
+                "RIGHT" => shape.Nodes[(int)VisualShape.NodePoints.Right],
                 _ => throw new ArgumentException("Invalid node anchor"),
             };
+        }
+
+        public void FindAndHighlight(int lineNumber)
+        {
+            foreach(var kvPair in shapes)
+            {
+                VisualShape shape = kvPair.Value;
+                shape.Highlight(shape.LineNumber == lineNumber);
+            }
         }
     }
 }
